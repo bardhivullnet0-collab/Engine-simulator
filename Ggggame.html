@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Engine Simulator PRO</title>
+<style>
+:root{--bg:#0a0d12;--panel:#111821;--panel2:#172230;--line:#263648;--txt:#e9f1f8;--muted:#91a4b8;--cyan:#49d7e8;--orange:#ff9d42;--green:#71e0a1}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at 50% -20%,#1a3145 0,#0a0d12 55%);color:var(--txt);font:14px/1.4 Inter,Segoe UI,Arial,sans-serif}
+header{height:66px;display:flex;align-items:center;justify-content:space-between;padding:0 22px;border-bottom:1px solid var(--line);background:#0b1119dd;position:sticky;top:0;z-index:5;backdrop-filter:blur(12px)}
+.brand{font-weight:900;letter-spacing:1.5px;font-size:18px}.brand span{color:var(--cyan)}.topright{color:var(--muted);font-size:12px}
+main{max-width:1500px;margin:auto;padding:18px;display:grid;grid-template-columns:330px minmax(380px,1fr) 310px;gap:16px}
+.panel{background:linear-gradient(160deg,#141e29,#0f151e);border:1px solid var(--line);border-radius:13px;padding:15px;box-shadow:0 12px 35px #0004}
+h2{font-size:13px;text-transform:uppercase;letter-spacing:1.2px;color:#b9c9d8;margin:0 0 13px}h3{font-size:12px;color:var(--cyan);text-transform:uppercase;letter-spacing:1px;margin:18px 0 8px}
+label{display:flex;justify-content:space-between;color:#b7c6d5;font-size:12px;margin:11px 0 5px}
+select,input[type=range]{width:100%}select{background:#0b121a;color:var(--txt);border:1px solid #34485b;padding:9px;border-radius:7px}
+input[type=range]{accent-color:var(--cyan)}.value{color:var(--cyan);font-variant-numeric:tabular-nums}
+button{border:1px solid #345064;background:#182b3b;color:var(--txt);border-radius:8px;padding:9px 12px;cursor:pointer;font-weight:700}button:hover{border-color:var(--cyan);background:#203c4e}button.primary{background:linear-gradient(90deg,#087d91,#16a7b4);border:0;color:#001116}button.active{border-color:var(--cyan);color:var(--cyan);box-shadow:inset 0 0 0 1px #49d7e855}
+.btnrow{display:flex;gap:7px;flex-wrap:wrap}.btnrow button{flex:1}
+.center{display:flex;flex-direction:column;gap:14px;min-width:0}.viewport{height:440px;position:relative;overflow:hidden;padding:0;background:radial-gradient(ellipse at 50% 45%,#20364a,#0b1119 70%)}#scene{width:100%;height:100%;display:block}
+.hud{position:absolute;left:14px;top:12px;display:flex;gap:7px;flex-wrap:wrap}.chip{background:#08121cdd;border:1px solid #31485b;border-radius:20px;padding:5px 9px;color:#b8cbd9;font-size:11px}.hint{position:absolute;bottom:12px;left:14px;color:#8196a9;font-size:11px}
+.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:9px}.metric{background:#0c141d;border:1px solid var(--line);border-radius:9px;padding:11px}.metric small{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.8px}.metric strong{display:block;font-size:22px;margin-top:4px;font-variant-numeric:tabular-nums}.metric em{font-style:normal;color:var(--muted);font-size:10px}
+.dyno{height:170px;background:#0b121a;border:1px solid var(--line);border-radius:9px;padding:7px}canvas#chart{width:100%;height:100%}
+.status{display:flex;justify-content:space-between;color:var(--muted);font-size:11px;margin-top:8px}
+.rightpanel{display:flex;flex-direction:column;gap:14px}.spec{display:grid;grid-template-columns:1fr auto;gap:8px;color:#9fb1c2;font-size:12px}.spec b{color:#e6f1f8;font-weight:600}
+.footer{max-width:1500px;margin:0 auto;padding:0 18px 22px;color:#6f8498;font-size:11px}
+@media(max-width:1100px){main{grid-template-columns:300px 1fr}.rightpanel{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr}.viewport{height:390px}}
+@media(max-width:720px){header{padding:0 13px}main{display:flex;flex-direction:column;padding:10px}.viewport{height:330px}.metrics{grid-template-columns:repeat(2,1fr)}.rightpanel{display:flex}.topright{display:none}}
+</style>
+</head>
+<body>
+<header><div class="brand">ENGINE <span>SIMULATOR</span> PRO</div><div class="topright">BUILD • BOOST • TUNE • DYNO</div></header>
+<main>
+<section class="panel">
+<h2><span style="color:var(--cyan)">01</span> Engine builder</h2>
+<label>Engine layout</label><select id="layout">
+<option>Inline-1</option><option>Inline-2</option><option>Inline-3</option><option selected>Inline-4</option><option>Inline-5</option><option>Inline-6</option><option>Inline-8</option><option>V2 (60°)</option><option>V4 (90°)</option><option>V6 (60°)</option><option>V8 (90°)</option><option>V10 (72°)</option><option>V12 (60°)</option><option>V16 (90°)</option><option>Flat-2</option><option>Flat-4</option><option>Flat-6</option><option>Flat-8</option><option>VR6</option><option>VR8</option><option>W12</option><option>W16</option><option>Rotary-2</option><option>Rotary-3</option><option>Radial-7</option><option>Radial-9</option>
+</select>
+<label>Displacement <span class="value" id="dispV">2.0 L</span></label><input id="disp" type="range" min="0.6" max="12" step=".1" value="2">
+<label>Bore <span class="value" id="boreV">86 mm</span></label><input id="bore" type="range" min="60" max="120" value="86">
+<label>Stroke <span class="value" id="strokeV">86 mm</span></label><input id="stroke" type="range" min="50" max="120" value="86">
+<label>Compression ratio <span class="value" id="compV">10.0:1</span></label><input id="comp" type="range" min="6" max="16" step=".1" value="10">
+<label>Cam profile <span class="value" id="camV">50</span></label><input id="cam" type="range" min="0" max="100" value="50">
+<label>Valve / VTEC aggressiveness <span class="value" id="vtecV">0%</span></label><input id="vtec" type="range" min="0" max="100" value="0">
+<h3>Forced induction</h3>
+<label>Induction system</label><select id="induction"><option value="na">Naturally aspirated</option><option value="turbo">Single turbo</option><option value="twin">Twin turbo</option><option value="seq">Sequential twin turbo</option><option value="compound">Compound turbo</option><option value="vgt">Variable geometry turbo</option><option value="roots">Roots supercharger</option><option value="twinScrew">Twin-screw supercharger</option><option value="centrifugal">Centrifugal supercharger</option><option value="electric">Electric supercharger</option></select>
+<label>Boost pressure <span class="value" id="boostV">0.0 psi</span></label><input id="boost" type="range" min="0" max="45" step=".5" value="0">
+<label>Intercooler efficiency <span class="value" id="icV">80%</span></label><input id="ic" type="range" min="0" max="100" value="80">
+<h3>Fuel & exhaust</h3>
+<label>Fuel type</label><select id="fuel"><option value="pump">Pump gasoline 95</option><option value="premium">Premium 98/100</option><option value="e85">E85</option><option value="race">Race fuel</option><option value="diesel">Diesel</option><option value="methanol">Methanol</option></select>
+<label>Fuel / AFR target <span class="value" id="afrV">14.7</span></label><input id="afr" type="range" min="8" max="18" step=".1" value="14.7">
+<label>Exhaust flow <span class="value" id="exV">70%</span></label><input id="ex" type="range" min="10" max="100" value="70">
+</section>
+<section class="center">
+<div class="panel viewport"><canvas id="scene"></canvas><div class="hud"><span class="chip" id="layoutChip">INLINE-4</span><span class="chip" id="boostChip">NATURALLY ASPIRATED</span><span class="chip">3D ENGINE VIEW</span></div><div class="hint">Drag to rotate • Scroll to zoom • Engine geometry is procedural</div></div>
+<div class="metrics">
+<div class="metric"><small>Horsepower</small><strong id="hp">—</strong><em>HP @ crank</em></div><div class="metric"><small>Torque</small><strong id="tq">—</strong><em>lb-ft</em></div><div class="metric"><small>Peak RPM</small><strong id="peak">—</strong><em>estimated</em></div><div class="metric"><small>Boost</small><strong id="boostMetric">0.0</strong><em>PSI</em></div>
+</div>
+<div class="panel"><h2><span style="color:var(--cyan)">02</span> Live dyno</h2><div class="dyno"><canvas id="chart"></canvas></div><div class="status"><span id="dynoStatus">Ready to run dyno</span><span>Estimated simulation • not real ECU data</span></div><div class="btnrow" style="margin-top:12px"><button class="primary" id="dynoBtn">RUN DYNO</button><button id="resetBtn">RESET BUILD</button><button id="soundBtn">START ENGINE 🔊</button></div></div>
+</section>
+<aside class="rightpanel">
+<div class="panel"><h2><span style="color:var(--cyan)">03</span> Engine controls</h2>
+<label>Throttle <span class="value" id="throttleV">0%</span></label><input id="throttle" type="range" min="0" max="100" value="0">
+<label>Rev limiter <span class="value" id="limiterV">7000 RPM</span></label><input id="limiter" type="range" min="3000" max="11000" step="100" value="7000">
+<label>Ignition timing <span class="value" id="timingV">18°</span></label><input id="timing" type="range" min="0" max="40" value="18">
+<label>ECU tune</label><select id="tune"><option value="street">Street</option><option value="sport">Sport</option><option value="race">Race</option><option value="eco">Economy</option></select>
+<div class="btnrow" style="margin-top:13px"><button id="idleBtn">IDLE</button><button id="revBtn">REV ENGINE</button></div>
+</div>
+<div class="panel"><h2><span style="color:var(--cyan)">04</span> Build report</h2><div class="spec"><span>Cylinders / rotors</span><b id="cyl">4</b><span>Configuration</span><b id="config">Inline</b><span>Induction</span><b id="indSpec">Natural</b><span>Estimated boost</span><b id="boostSpec">0.0 psi</b><span>Displacement</span><b id="dispSpec">2.0 L</b><span>Compression</span><b id="compSpec">10.0:1</b><span>Fuel</span><b id="fuelSpec">Gasoline 95</b></div>
+<h3>Reliability monitor</h3><div class="spec"><span>Knock tendency</span><b id="knock">Low</b><span>Thermal load</span><b id="thermal">Normal</b><span>Engine stress</span><b id="stress">Low</b></div><p style="font-size:11px;color:var(--muted);margin:13px 0 0">High boost, high compression and aggressive timing increase knock and stress. Values are game estimates, not engineering validation.</p></div>
+</aside>
+</main>
+<div class="footer">ENGINE SIMULATOR PRO • Browser prototype v1.0 • Original independent project. Performance calculations are simplified game estimates.</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js"></script>
+<script>
+const $=id=>document.getElementById(id);
+const layouts={"Inline-1":[1,"Inline"],"Inline-2":[2,"Inline"],"Inline-3":[3,"Inline"],"Inline-4":[4,"Inline"],"Inline-5":[5,"Inline"],"Inline-6":[6,"Inline"],"Inline-8":[8,"Inline"],"V2 (60°)":[2,"V"],"V4 (90°)":[4,"V"],"V6 (60°)":[6,"V"],"V8 (90°)":[8,"V"],"V10 (72°)":[10,"V"],"V12 (60°)":[12,"V"],"V16 (90°)":[16,"V"],"Flat-2":[2,"Flat"],"Flat-4":[4,"Flat"],"Flat-6":[6,"Flat"],"Flat-8":[8,"Flat"],"VR6":[6,"VR"],"VR8":[8,"VR"],"W12":[12,"W"],"W16":[16,"W"],"Rotary-2":[2,"Rotary"],"Rotary-3":[3,"Rotary"],"Radial-7":[7,"Radial"],"Radial-9":[9,"Radial"]};
+const names={na:"Naturally aspirated",turbo:"Single turbo",twin:"Twin turbo",seq:"Sequential twin turbo",compound:"Compound turbo",vgt:"VGT turbo",roots:"Roots supercharger",twinScrew:"Twin-screw supercharger",centrifugal:"Centrifugal supercharger",electric:"Electric supercharger"};
+const num=id=>+$(id).value, fmt=(n,d=0)=>Number(n).toFixed(d);
+function calc(){
+ let [cyl,kind]=layouts[$("layout").value], disp=num("disp"), boost=num("boost"), cr=num("comp"), cam=num("cam"),vtec=num("vtec"),afr=num("afr"),ex=num("ex"),ic=num("ic"),tim=num("timing"),fuel=$("fuel").value,ind=$("induction").value,tune=$("tune").value,lim=num("limiter");
+ let forced=ind!=="na", fuelMult={pump:1,premium:1.025,e85:1.08,race:1.10,diesel:.91,methanol:1.12}[fuel];
+ let boostEff=forced?Math.max(0,boost)*.068* (0.65+ic/285):0;
+ let airflow=1+boostEff, crFactor=Math.max(.72,1+(cr-10)*.012), camFactor=.88+cam*.0024+vtec*.0009;
+ let afrFactor=Math.max(.72,1-Math.abs(afr-(fuel==="diesel"?14.5:forced?11.8:14.7))*.025);
+ let tuneMult={street:1,sport:1.045,race:1.085,eco:.94}[tune], exhaust=.78+ex*.0032, rpmPeak= Math.min(lim, 5200+cam*18+vtec*9+(fuel==="diesel"?-1300:0));
+ let base=disp*(fuel==="diesel"?42:48)*fuelMult*airflow*crFactor*camFactor*afrFactor*exhaust*tuneMult;
+ let timingFactor=1-Math.abs(tim-(forced?16:24))*.004; base*=Math.max(.82,timingFactor);
+ let hp=base, tq=hp*5252/rpmPeak*(fuel==="diesel"?1.18:1);
+ let knock=(boost>20&&cr>10.5)||(tim>30&&boost>10)||(fuel==="pump"&&boost>24);
+ let stress=Math.min(100,boost*1.45+Math.max(0,cr-9)*4+cam*.12+Math.max(0,tim-25)*2);
+ let thermal=Math.min(100,boost*1.65+(100-ic)*.35+(fuel==="e85"?-8:0));
+ return {cyl,kind,disp,boost,cr,hp,tq,rpmPeak,knock,stress,thermal,ind,forced};
+}
+function update(){
+ let s=calc();
+ const vals={dispV:fmt(num("disp"),1)+" L",boreV:num("bore")+" mm",strokeV:num("stroke")+" mm",compV:fmt(num("comp"),1)+":1",camV:num("cam"),vtecV:num("vtec")+"%",boostV:fmt(num("boost"),1)+" psi",icV:num("ic")+"%",afrV:fmt(num("afr"),1),exV:num("ex")+"%",throttleV:num("throttle")+"%",limiterV:num("limiter")+" RPM",timingV:num("timing")+"°"};
+ Object.entries(vals).forEach(([k,v])=>$(k).textContent=v);
+ $("layoutChip").textContent=$("layout").value.toUpperCase();$("boostChip").textContent=names[s.ind].toUpperCase();
+ $("hp").textContent=fmt(s.hp);$("tq").textContent=fmt(s.tq);$("peak").textContent=fmt(s.rpmPeak);$("boostMetric").textContent=fmt(s.boost,1);
+ $("cyl").textContent=s.cyl;$("config").textContent=s.kind;$("indSpec").textContent=names[s.ind];$("boostSpec").textContent=fmt(s.boost,1)+" psi";$("dispSpec").textContent=fmt(s.disp,1)+" L";$("compSpec").textContent=fmt(s.cr,1)+":1";$("fuelSpec").textContent=$("fuel").selectedOptions[0].text;
+ $("knock").textContent=s.knock?"Elevated":"Low";$("knock").style.color=s.knock?"#ff9d42":"#71e0a1";$("thermal").textContent=s.thermal>65?"High":s.thermal>35?"Warm":"Normal";$("stress").textContent=s.stress>65?"High":s.stress>35?"Moderate":"Low";
+ drawDyno(s);buildEngine(s);return s;
+}
+let chart=$("chart"),ctx=chart.getContext("2d");
+function drawDyno(s){let w=chart.width=chart.clientWidth*devicePixelRatio,h=chart.height=chart.clientHeight*devicePixelRatio;ctx.clearRect(0,0,w,h);ctx.strokeStyle="#26394a";ctx.lineWidth=1;for(let i=0;i<5;i++){let y=i*h/4;ctx.beginPath();ctx.moveTo(35,y);ctx.lineTo(w-8,y);ctx.stroke()}ctx.fillStyle="#8196a9";ctx.font=11*devicePixelRatio+"px Arial";ctx.fillText("HP / TORQUE",8,13*devicePixelRatio);let max=s.hp*1.15;function line(color,fn){ctx.beginPath();ctx.strokeStyle=color;ctx.lineWidth=2.5*devicePixelRatio;for(let i=0;i<=100;i++){let x=35+i*(w-48)/100,rpm=1000+i/100*(num("limiter")-1000),v=fn(rpm),y=h-18-(v/max)*(h-42);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)}ctx.stroke()}line("#49d7e8",r=>s.hp*(r/s.rpmPeak)*Math.exp(1-r/s.rpmPeak));line("#ff9d42",r=>s.tq*(r/s.rpmPeak)*Math.exp(1-r/s.rpmPeak)*s.rpmPeak/5252);ctx.fillStyle="#49d7e8";ctx.fillText("HP",w-45,17*devicePixelRatio);ctx.fillStyle="#ff9d42";ctx.fillText("TQ",w-45,31*devicePixelRatio)}
+let scene, camera, renderer, engineGroup, drag=false,lastX=0,lastY=0,rotX=-.35,rotY=.55,zoom=1;
+function init3d(){let canvas=$("scene");scene=new THREE.Scene();camera=new THREE.PerspectiveCamera(42,1,.1,100);camera.position.set(6,5,8);renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));scene.add(new THREE.HemisphereLight(0xc8e5ff,0x26313c,2));let light=new THREE.DirectionalLight(0xffffff,2.4);light.position.set(5,8,6);scene.add(light);let grid=new THREE.GridHelper(12,24,0x345268,0x1b2a38);grid.position.y=-1.5;scene.add(grid);engineGroup=new THREE.Group();scene.add(engineGroup);resize();canvas.addEventListener("pointerdown",e=>{drag=true;lastX=e.clientX;lastY=e.clientY;canvas.setPointerCapture(e.pointerId)});canvas.addEventListener("pointerup",()=>drag=false);canvas.addEventListener("pointermove",e=>{if(!drag)return;rotY+=(e.clientX-lastX)*.01;rotX+=(e.clientY-lastY)*.01;lastX=e.clientX;lastY=e.clientY});canvas.addEventListener("wheel",e=>{zoom=Math.max(.65,Math.min(1.7,zoom+e.deltaY*.001));e.preventDefault()},{passive:false});animate()}
+function resize(){if(!renderer)return;let c=$("scene");renderer.setSize(c.clientWidth,c.clientHeight,false);camera.aspect=c.clientWidth/c.clientHeight;camera.updateProjectionMatrix()}
+window.addEventListener("resize",resize);
+function mat(color,metal=0.6,rough=.35){return new THREE.MeshStandardMaterial({color,metalness:metal,roughness:rough})}
+function box(g,x,y,z,sx,sy,sz,m){let o=new THREE.Mesh(new THREE.BoxGeometry(sx,sy,sz),m);o.position.set(x,y,z);g.add(o);return o}
+function cyl(g,x,y,z,r,len,m,axis="y"){let o=new THREE.Mesh(new THREE.CylinderGeometry(r,r,len,24),m);o.position.set(x,y,z);if(axis==="x")o.rotation.z=Math.PI/2;if(axis==="z")o.rotation.x=Math.PI/2;g.add(o);return o}
+function buildEngine(s){if(!engineGroup)return;while(engineGroup.children.length){let o=engineGroup.children.pop();o.geometry?.dispose()}let silver=mat(0x9baab5,.82,.25),dark=mat(0x263744,.7,.32),blue=mat(0x147f9d,.65,.25),gold=mat(0xd18a38,.72,.25),red=mat(0xa9443b,.55,.3);
+ let n=Math.min(s.cyl,16), bank=s.kind==="V"||s.kind==="W"||s.kind==="VR",flat=s.kind==="Flat",radial=s.kind==="Radial",rotary=s.kind==="Rotary";
+ let spacing=bank||flat?Math.max(.42,n/2*.38):Math.max(.42,n*.19);let bodyLen=bank?Math.max(1.8,n*.27):Math.max(1.8,n*.38);
+ box(engineGroup,0,0,0,bodyLen,.55,bank?.95:flat?.72:.78,dark);
+ if(rotary){for(let i=0;i<n;i++){let a=i*Math.PI*2/n;let r=.5;let o=new THREE.Mesh(new THREE.CylinderGeometry(.55,.55,.42,3),gold);o.position.set(Math.cos(a)*r,.48,Math.sin(a)*r);o.rotation.y=a;engineGroup.add(o)}}
+ else if(radial){for(let i=0;i<n;i++){let a=i*Math.PI*2/n;let x=Math.cos(a)*.85,z=Math.sin(a)*.85;cyl(engineGroup,x,.55,z,.17,.9,silver,"y");}}
+ else{
+  for(let i=0;i<n;i++){let side=bank?(i%2?1:-1):flat?(i%2?1:-1):0;let row=bank||flat?Math.floor(i/2):i;let x=bank||flat?(row-(Math.ceil(n/2)-1)/2)*.55:(i-(n-1)/2)*.38;let z=bank||flat?side*.37:0;
+   box(engineGroup,x,.48,z,.31,.2,.31,blue);cyl(engineGroup,x,.77,z,.12,.38,silver);cyl(engineGroup,x,.99,z,.17,.12,gold);box(engineGroup,x,1.1,z,.27,.08,.27,red);
+  }
+ }
+ // Intake plenum and rails
+ box(engineGroup,0,1.34,0,bodyLen*.8,.22,.42,blue);
+ for(let i=0;i<Math.min(n,8);i++){let x=(i-(Math.min(n,8)-1)/2)*.38;cyl(engineGroup,x,1.18,.3,.055,.32,silver,"z")}
+ // turbo/supercharger assembly
+ if(s.forced){let x=bodyLen*.55+.38;let turbo=new THREE.Mesh(new THREE.TorusGeometry(.32,.12,12,32),gold);turbo.position.set(x,.45,.48);engineGroup.add(turbo);cyl(engineGroup,x,.45,.48,.22,.28,dark,"z");cyl(engineGroup,x+.43,.45,.48,.15,.55,silver,"x");if(s.ind==="twin"||s.ind==="seq"||s.ind==="compound"){let t2=turbo.clone();t2.position.x=-x;engineGroup.add(t2);cyl(engineGroup,-x,.45,.48,.15,.55,silver,"x")}if(s.ind.includes("roots")||s.ind==="twinScrew"||s.ind==="centrifugal"||s.ind==="electric"){box(engineGroup,0,1.58,.0,bodyLen*.6,.25,.6,gold)}}
+ engineGroup.position.y=-.55;engineGroup.scale.setScalar(zoom);engineGroup.rotation.set(rotX,rotY,0);
+}
+function animate(){requestAnimationFrame(animate);if(engineGroup){engineGroup.rotation.set(rotX,rotY,0);engineGroup.scale.setScalar(zoom)}renderer.render(scene,camera)}
+let running=false,rev=false,audioCtx=null,osc=null;
+function sound(){if(!audioCtx)audioCtx=new (window.AudioContext||window.webkitAudioContext)();if(running){osc?.stop();osc=null;running=false;$("soundBtn").textContent="START ENGINE 🔊";return}osc=audioCtx.createOscillator();let gain=audioCtx.createGain();osc.type="sawtooth";osc.frequency.value=55;gain.gain.value=.025;osc.connect(gain);gain.connect(audioCtx.destination);osc.start();running=true;$("soundBtn").textContent="STOP ENGINE 🔇";window.engineOsc=osc;window.engineGain=gain}
+function setSound(){if(running&&osc){osc.frequency.setTargetAtTime(42+num("throttle")*2.2,audioCtx.currentTime,.05);window.engineGain.gain.setTargetAtTime(.012+num("throttle")*.00035,audioCtx.currentTime,.05)}}
+document.querySelectorAll("input,select").forEach(el=>el.addEventListener("input",()=>{update();setSound()}));
+$("dynoBtn").onclick=()=>{let s=update();$("dynoStatus").textContent="Dyno complete • "+fmt(s.hp)+" HP / "+fmt(s.tq)+" lb-ft • "+fmt(s.rpmPeak)+" RPM"};
+$("resetBtn").onclick=()=>{location.reload()};
+$("soundBtn").onclick=sound;$("idleBtn").onclick=()=>{$("throttle").value=0;update();setSound()};$("revBtn").onclick=()=>{$("throttle").value=75;update();setSound()};
+init3d();update();
+</script>
+</body></html>
